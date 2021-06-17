@@ -1,25 +1,58 @@
+/*
+ * Cyborg CEA datalogger V1.0
+ * Created for the robotic people competition
+ * By Juanes / Lina / Santiago
+ * Coach: IE.Miguel Califa
+ * Hardware: Wemos D1 R1 & DHT & BMP180 & SD CARD
+ * 
+ */
+ 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
+#include <SD.h>
 #include <DHT_U.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <SFE_BMP180.h>
 #include <Adafruit_Sensor.h>
-
+#include <SoftwareSerial.h>
+#include <TinyGPS.h>
 
 #define DHTPIN 2 
 #define DHTTYPE    DHT11
 #define I2C_ADDRESS 0x77
 #define Po 1017
+#define chipSelect D8
 
-DHT_Unified dht(DHTPIN, DHTTYPE);
+TinyGPS gps;
+SoftwareSerial ss(D4, D3);
 SFE_BMP180 bmp180;
+DHT_Unified dht(DHTPIN, DHTTYPE);
 
-uint32_t delayMS;
-
+int satelites,
+measurePin = A0,
+ledPower = D0,
+samplingTime = 280,
+deltaTime = 40,
+sleepTime = 9680;
+float flat, flon,
+voMeasured = 0,
+calcVoltage = 0,
+dustDensity = 0,
+pm05=0,
+temperatura = 0, 
+humedad = 0, 
+altitud = 0, 
+dust = 0,
+latitud = 0,
+longitud = 0;
+unsigned long age;
+String informacion = "";
+static void smartdelay(unsigned long ms);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  pinMode(ledPower,OUTPUT);
   //Inicializar DHT11.
   dht.begin();
   sensor_t sensor;
@@ -30,25 +63,68 @@ void setup() {
   {
     Serial.println("begin() failed. check your BMP180 Interface and I2C Address.");
     while (1);
-  }
-  delayMS = sensor.min_delay / 1000;
+  } else Serial.println("Inicialice con exito el BMP180");
+  
+  // SD Card Init
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    // don't do anything more:
+    return;
+  } else Serial.println("Inicialice con exito la memoria SD");
 
+  ss.begin(9600);
+  
+  Serial.println("Inicializacion correcta, procediendo con lectura de señales");
 }
 
 void loop() {
-  Serial.println (obtener_lecturas());
-  delay(500);
-
-}
-String obtener_lecturas () {
-  double temperatura=obtener_temperatura ();
-  double humedad=obtener_humedad ();
-  double altitud=obtener_altitud ();
-
-  return String (temperatura) + "," + String (humedad) + "," + String (altitud);
+  gps.f_get_position(&flat, &flon, &age); // Paso 1, buscar GPS
+  temperatura=obtener_temperatura (); // Paso 2, leer temperaturas
+  humedad=obtener_humedad (); // Paso 3, leer humedad
   
-}
+  altitud=obtener_altitud (); // Paso 4, leer altitud
+  dust=get_dust_density ();// Step 5, read dust Density 
+  
+  satelites = obtener_satelites(); // Paso 5, obtener cantidad de satelites on-line
+  latitud = obtener_latitud(); // Paso 6, obtener latitud
+  longitud = obtener_longitud(); // Paso 7, obtener longitud
 
+  informacion = String (temperatura) + "," + String (humedad) + "," + String (altitud) + "," + String (satelites) + "," + String (latitud) + "," + String (longitud) + String (dust) + ",";
+  informacion+= "https://www.google.com/maps/@";
+  informacion+= String(latitud) + ",";
+  informacion+= String(longitud) + ",";
+  informacion+= ",16z";
+
+/*
+  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+  dataFile.println(informacion);
+  dataFile.close();
+*/  
+  Serial.println (informacion);
+  smartdelay(1000);
+
+}
+double guardar_sd(String data){
+  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+  dataFile.println(data);
+  dataFile.close();
+}
+double obtener_longitud(){
+  Serial.print("Longitud: ");
+  Serial.println(flon);
+  return flon;
+}
+double obtener_latitud(){
+  Serial.print("Latitud: ");
+  Serial.println(flat);
+  return flat;
+}
+int obtener_satelites(){ 
+  satelites = gps.satellites();
+  Serial.print("satelites: ");
+  Serial.println(satelites);
+  return satelites;
+}
 double obtener_temperatura(){ 
   sensors_event_t event;
   dht.temperature().getEvent(&event);
@@ -107,4 +183,39 @@ double obtener_altitud()
       }
     }
   }
+}
+double get_dust_density()
+{
+  digitalWrite(ledPower,LOW); // power on the LED
+  delayMicroseconds(samplingTime);
+  voMeasured = analogRead(measurePin); // read the dust value
+  delayMicroseconds(deltaTime);
+  digitalWrite(ledPower,HIGH); // turn the LED off
+  delayMicroseconds(sleepTime);
+  // 0 - 3.3V mapped to 0 - 1023 integer values
+  // recover voltage
+  calcVoltage = 5*voMeasured/1024;
+  // linear eqaution taken from http://www.howmuchsnow.com/arduino/airquality/
+  // Chris Nafis (c) 2012
+  dustDensity = 0.17 * calcVoltage - 0.1;
+  // Ecuacion linear de PM 2.5
+  pm05=(calcVoltage-0.0356)*120000;
+  Serial.print("Raw Signal Value (0-1023): ");
+  Serial.print(voMeasured);
+  Serial.print(" - Voltage: ");
+  Serial.print(calcVoltage);
+  Serial.print(" - Dust Density(mg/m3): ");
+  Serial.println(dustDensity);
+  Serial.print(" - PM 0.5(particulas/0.01 pie3): ");
+  Serial.println(pm05);
+  return dustDensity;
+}
+static void smartdelay(unsigned long ms)
+{
+  unsigned long start = millis();
+  do 
+  {
+    while (ss.available())
+      gps.encode(ss.read());
+  } while (millis() - start < ms);
 }
