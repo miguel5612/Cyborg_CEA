@@ -34,7 +34,13 @@
 - Una botella de 350 ml
 - Cinta aislante
 - Silicona
-- Elementos de decoración 
+- Elementos complementarios (Jabón líquido, Bicarbonato, Colorante, cuerda con el objetivo de tener un aterrizaje más controlado)
+- Trípode diseñado en hierro, con tubo metálico de 3/16 de diámetro. Una arandela metálica de tipo industrial para reforzar la base. 3 guias de 5/16 para apoyar al cohete durante su despegue. Tuberia galvanizada para la conducción del aire a través de todo el sistema. Acople rápido para la conexión y desconexión del compresor.
+
+
+**Programación empleada**
+
+
 
 
 **Conclusiones**
@@ -46,7 +52,20 @@
 5. Según las mediciones de los sensores, a mayor temperatura alcanzada, menor temperatura y mayor humedad, se genera una relación tanto directa como inversamente proporcional con la altura.
 
 
-**O**
+**Materiales del Cansat Amateur**
+
+- DHT11
+- BMP180
+- MG811
+- Gp2y1014au0f
+- GPS Neo6M
+- 
+- Globo de helio de material especial.
+- Trípode diseñado en hierro, con tubo metálico de 3/16 de diámetro. Una arandela metálica de tipo industrial para reforzar la base. 3 guias de 5/16 para apoyar al cohete durante su despegue. Tuberia galvanizada para la conducción del aire a través de todo el sistema. Acople rápido para la conexión y desconexión del compresor.
+
+
+***
+
 
 
 ## License
