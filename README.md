@@ -64,14 +64,17 @@ https://github.com/miguel5612/Cyborg_CEA/blob/main/Imagen%20de%20cohete%202.jpeg
 - MG811
 - Gp2y1014au0f
 - GPS Neo6M
-- 
 - Globo de helio de material especial.
 - Trípode diseñado en hierro, con tubo metálico de 3/16 de diámetro. Una arandela metálica de tipo industrial para reforzar la base. 3 guias de 5/16 para apoyar al cohete durante su despegue. Tuberia galvanizada para la conducción del aire a través de todo el sistema. Acople rápido para la conexión y desconexión del compresor.
 
 
-***
+**Programa del Cansat**
 
+https://github.com/miguel5612/Cyborg_CEA/blob/main/Programaci_n_Cyborg_CEA/Programaci_n_Cyborg_CEA.ino
 
+**Donaciones**
+
+Cualquier donación será destinada para la rehabilitación mental de Juan Esteban Beltrán Rincón
 
 ## License
 
