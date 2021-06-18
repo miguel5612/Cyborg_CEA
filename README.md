@@ -43,6 +43,11 @@
 https://github.com/miguel5612/Cyborg_CEA/blob/main/CyborgCEA1.0.ino
 
 
+**Evidencia Fotográfica**
+
+https://github.com/miguel5612/Cyborg_CEA/blob/main/Imagen%20de%20cohete%202.jpeg
+
+
 **Conclusiones**
 
 1. El cohete se propulsaba por la tercera ley del movimiento de Newton (Acción, Reacción)
