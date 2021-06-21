@@ -1,5 +1,5 @@
 # Cyborg_CEA 4.0 2021 
-## Authors 
+## Autores 
 
 *_Juan Esteban Beltrán Rincón_*
  
@@ -76,6 +76,6 @@ https://github.com/miguel5612/Cyborg_CEA/blob/main/Programaci_n_Cyborg_CEA/Progr
 
 Cualquier donación será destinada para la rehabilitación mental de Juan Esteban Beltrán Rincón
 
-## License
+## Licencia
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
