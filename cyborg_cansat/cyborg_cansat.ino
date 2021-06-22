@@ -17,6 +17,9 @@
 #include <Adafruit_Sensor.h>
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
+#include <ESP8266WiFi.h>
+#include "DHT.h"
+
 
 #define DHTPIN 2 
 #define DHTTYPE    DHT11
@@ -24,6 +27,7 @@
 #define Po 1017
 #define chipSelect D8
 
+WiFiClient client;
 TinyGPS gps;
 SoftwareSerial ss(D4, D3);
 SFE_BMP180 bmp180;
@@ -45,10 +49,22 @@ humedad = 0,
 altitud = 0, 
 dust = 0,
 latitud = 0,
-longitud = 0;
+longitud = 0,
+CO2 = 0;
 unsigned long age;
 String informacion = "";
 static void smartdelay(unsigned long ms);
+
+// Wi-Fi Settings
+const char* ssid = "CEA_Robotica"; // your wireless network name (SSID)
+const char* password = "ElectronicsLab2021"; // your Wi-Fi network password
+
+
+// ThingSpeak Settings
+const int channelID = 000000;
+String writeAPIKey = "G30XX7RK1V6L6HEL"; // write API key for your ThingSpeak Channel
+const char* server = "api.thingspeak.com";
+const int postingInterval = 3.0 * 1000.0; // post data every x seconds
 
 void setup() {
   Serial.begin(115200);
@@ -75,6 +91,15 @@ void setup() {
   ss.begin(9600);
   
   Serial.println("Inicializacion correcta, procediendo con lectura de señales");
+
+
+WiFi.begin(ssid, password);
+
+Serial.print ("conectando");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print ("."); 
+  }
 }
 
 void loop() {
@@ -101,7 +126,37 @@ void loop() {
   dataFile.close();
 */  
   Serial.println (informacion);
-  smartdelay(1000);
+  if (client.connect(server, 80)) {
+    // Construct API request body
+    String body = "&field1=";
+           body += String (temperatura);
+           body += "&field2=";
+           body += String (altitud);
+           body += "&field3=";
+           body += String (humedad);
+           body += "&field4=";
+           body += String (latitud);
+           body += "&field5=";
+           body += String (longitud);
+           body += "&field6=";
+           body += String (dustDensity);
+           body += "&field7=";
+           body += String (CO2);
+           
+
+    client.println("POST /update HTTP/1.1");
+    client.println("Host: api.thingspeak.com");
+    client.println("User-Agent: ESP8266 (nothans)/1.0");
+    client.println("Connection: close");
+    client.println("X-THINGSPEAKAPIKEY: " + writeAPIKey);
+    client.println("Content-Type: application/x-www-form-urlencoded");
+    client.println("Content-Length: " + String(body.length()));
+    client.println("");
+    client.print(body);
+  }
+  client.stop(); 
+   
+ smartdelay(postingInterval);
 
 }
 double guardar_sd(String data){
@@ -162,7 +217,6 @@ double obtener_altitud()
   status = bmp180.startTemperature();
 
   if (status != 0) {
-    delay(1000);
     status = bmp180.getTemperature(T);
 
     if (status != 0) {
