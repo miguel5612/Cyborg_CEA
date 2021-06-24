@@ -50,7 +50,9 @@ altitud = 0,
 dust = 0,
 latitud = 0,
 longitud = 0,
-CO2 = 0;
+anteriortemperatura = 0,
+anteriorhumedad = 0;
+
 unsigned long age;
 String informacion = "";
 static void smartdelay(unsigned long ms);
@@ -118,7 +120,7 @@ void loop() {
   informacion+= "https://www.google.com/maps/@";
   informacion+= String(latitud) + ",";
   informacion+= String(longitud) + ",";
-  informacion+= ",16z";
+  informacion+= "16z";
 
 /*
   File dataFile = SD.open("datalog.txt", FILE_WRITE);
@@ -140,8 +142,8 @@ void loop() {
            body += String (longitud);
            body += "&field6=";
            body += String (dustDensity);
-           body += "&field7=";
-           body += String (CO2);
+           body += "&fiel7=";
+           body += String (satelites);
            
 
     client.println("POST /update HTTP/1.1");
@@ -185,12 +187,13 @@ double obtener_temperatura(){
   dht.temperature().getEvent(&event);
   if (isnan(event.temperature)) {
     Serial.println(F("Error reading temperature!"));
-    return 9999;
+    return anteriortemperatura;
   }
   else {
     Serial.print(F("Temperature: "));
     Serial.print(event.temperature);
     Serial.println(F("°C"));
+    anteriortemperatura = event.temperature;
     return event.temperature;
   }
 }
@@ -199,12 +202,13 @@ double obtener_humedad (){
   dht.humidity().getEvent(&event);
   if (isnan(event.relative_humidity)) {
     Serial.println(F("Error reading humidity!"));
-    return 9999;
+    return anteriorhumedad;
   }
   else {
     Serial.print(F("Humidity: "));
     Serial.print(event.relative_humidity);
     Serial.println(F("%"));
+    anteriorhumedad = event.relative_humidity;
     return event.relative_humidity; 
   }
 }
@@ -262,7 +266,7 @@ double get_dust_density()
   Serial.println(dustDensity);
   Serial.print(" - PM 0.5(particulas/0.01 pie3): ");
   Serial.println(pm05);
-  return dustDensity;
+  return abs(dustDensity);
 }
 static void smartdelay(unsigned long ms)
 {
