@@ -72,10 +72,6 @@ https://github.com/miguel5612/Cyborg_CEA/blob/main/Imagen%20de%20cohete%202.jpeg
 
 https://github.com/miguel5612/Cyborg_CEA/blob/main/Programaci_n_Cyborg_CEA/Programaci_n_Cyborg_CEA.ino
 
-**Donaciones**
-
-Cualquier donación será destinada para la rehabilitación mental de Juan Esteban Beltrán Rincón
-
 ## Licencia
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
